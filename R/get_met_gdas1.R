@@ -62,10 +62,31 @@ get_met_gdas1 <- function(days,
   
   files <- paste0("gdas1.", month_names, met_years, ".w", met_week) %>% unique()
   
-  get_met_files(
-    files = files,
-    path_met_files = path_met_files,
-    ftp_dir = "ftp://arlftp.arlhq.noaa.gov/archives/gdas1"
-  )
-  
+  tryCatch({
+    get_met_files(
+      files = files,
+      path_met_files = path_met_files,
+      ftp_dir = "ftp://arlftp.arlhq.noaa.gov/archives/gdas1"
+    )},
+    error=function(err){
+      # A common error is when date is too recent and 
+      # gdas compiled week file is not available.
+      # In this case, we download latest temporary file offered by gdas1
+      # named current7days
+      if(abs(as.numeric(as.POSIXct(max_date)-Sys.time(), unit="days")) < 7){
+        files[length(files)] <- "current7days"
+        
+        # Remove downloaded file if too old
+        ctime <- file.info(file.path(path_met_files, "current7days"))$ctime
+        if(!is.na(ctime) && as.numeric(Sys.time() - ctime, unit="hours") > 24){
+          file.remove(file.path(path_met_files, "current7days"))
+        }
+        
+        get_met_files(
+          files = files,
+          path_met_files = path_met_files,
+          ftp_dir = "ftp://arlftp.arlhq.noaa.gov/archives/gdas1"
+        )
+      }
+    })
 }
