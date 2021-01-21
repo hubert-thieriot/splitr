@@ -78,7 +78,7 @@ get_met_gdas1 <- function(days,
         
         # Remove downloaded file if too old
         ctime <- file.info(file.path(path_met_files, "current7days"))$ctime
-        if(!is.na(ctime) && as.numeric(Sys.time() - ctime, unit="hours") > 24){
+        if(!is.na(ctime) && as.numeric(Sys.time() - ctime, unit="hours") > 12){
           file.remove(file.path(path_met_files, "current7days"))
         }
         
