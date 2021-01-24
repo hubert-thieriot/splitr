@@ -354,7 +354,7 @@ get_daily_filenames <- function(days,
   paste0(prefix, met_days, suffix)
 }
 
-get_met_files <- function(files, path_met_files, ftp_dir) {
+get_met_files <- function(files, path_met_files, ftp_dir, force_update=F) {
 
   # Determine which met files are already locally available
   files_in_path <- list.files(path_met_files)
@@ -363,14 +363,14 @@ get_met_files <- function(files, path_met_files, ftp_dir) {
   if (!is.null(files)) {
 
     for (file in files) {
-
-      if (!(file %in% files_in_path)) {
-
+  
+      if (!(file %in% files_in_path) | force_update){
         downloader::download(
           url = file.path(ftp_dir, file),
           destfile = path.expand(file.path(path_met_files, file)),
-          method = "auto",
-          quiet = FALSE,
+          method = "wget",
+          extra = c("-r -N -c"), # Download if file timestamping is different
+          quiet = F,
           mode = "wb",
           cacheOK = FALSE
         )
