@@ -67,7 +67,7 @@ get_met_gdas1 <- function(days,
       files = files,
       path_met_files = path_met_files,
       ftp_dir = "ftp://arlftp.arlhq.noaa.gov/archives/gdas1",
-      force_update=T
+      force_update=F
     )},
     error=function(err){
       # A common error is when date is too recent and 
