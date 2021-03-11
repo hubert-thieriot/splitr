@@ -370,7 +370,7 @@ get_met_files <- function(files, path_met_files, ftp_dir, force_update=F) {
           destfile = path.expand(file.path(path_met_files, file)),
           method = "wget",
           extra = c("-r -N -c"), # Download if file timestamping is different
-          quiet = F,
+          quiet = T,
           mode = "wb",
           cacheOK = FALSE
         )
