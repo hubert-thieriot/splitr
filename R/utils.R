@@ -369,8 +369,8 @@ get_met_files <- function(files, path_met_files, ftp_dir, force_update=F) {
           url = file.path(ftp_dir, file),
           destfile = path.expand(file.path(path_met_files, file)),
           method = "wget",
-          extra = c("-r -N -c"), # Download if file timestamping is different
-          quiet = T,
+          extra = c("-r -N -c "), # Download if file timestamping is different
+          quiet = T, #Log might make Rstudio very slow?
           mode = "wb",
           cacheOK = FALSE
         )

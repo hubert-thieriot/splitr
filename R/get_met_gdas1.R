@@ -67,7 +67,7 @@ get_met_gdas1 <- function(days,
       files = files,
       path_met_files = path_met_files,
       ftp_dir = "ftp://arlftp.arlhq.noaa.gov/archives/gdas1",
-      force_update=F
+      force_update=T #Needed to get the current7days trick work,
     )},
     error=function(err){
       # A common error is when date is too recent and 
@@ -75,7 +75,8 @@ get_met_gdas1 <- function(days,
       # In this case, we download latest temporary file offered by gdas1
       # named current7days
       if(abs(as.numeric(as.POSIXct(max_date)-Sys.time(), unit="days")) < 7){
-        files[length(files)] <- "current7days"
+        org_file <- files[length(files)]
+        new_file <- "current7days"
         
         # Remove downloaded file if too old
         ctime <- file.info(file.path(path_met_files, "current7days"))$ctime
@@ -84,11 +85,18 @@ get_met_gdas1 <- function(days,
         }
         
         get_met_files(
-          files = files,
+          files = new_file,
           path_met_files = path_met_files,
           ftp_dir = "ftp://arlftp.arlhq.noaa.gov/archives/gdas1",
           force_update=T
         )
+        
+        #hysplit_std is expected the standard name gdas1.***
+        file.remove(gsub("//", "/", file.path(path_met_files, org_file)))
+        file.copy(file.path(path_met_files, new_file),
+                    file.path(path_met_files, org_file)
+                    )
       }
+      return(files)
     })
 }
