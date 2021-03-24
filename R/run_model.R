@@ -46,9 +46,16 @@ run_model <- function(model) {
     for (i in n_model_runs) {
       
       # Get time window for observations
-      start_day <- model$start_time %>% lubridate::floor_date()
-      start_hour <- model$start_time %>% lubridate::hour() 
-      duration <- as.numeric(difftime(model$end_time, model$start_time, units = "hours"))
+      if(is.null(model$direction) || (model$direction=="forward")){
+        start_day <- model$start_time %>% lubridate::floor_date()
+        start_hour <- model$start_time %>% lubridate::hour() 
+        duration <- as.numeric(difftime(model$end_time, model$start_time, units = "hours"))  
+      }else{
+        start_day <- model$end_time %>% lubridate::floor_date()
+        start_hour <- model$end_time %>% lubridate::hour() 
+        duration <- as.numeric(difftime(model$end_time, model$start_time, units = "hours"))  
+      }
+      
     
       # Get ith source parameters
       lat <- model$sources[i, ][["lat"]]
@@ -73,7 +80,7 @@ run_model <- function(model) {
           start_day = start_day,
           start_hour = start_hour,
           duration = duration,
-          direction = "forward",
+          direction = model$direction,
           met_type = model$met_type,
           vert_motion = model$vert_motion,
           model_height = model$model_height,

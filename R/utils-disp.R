@@ -24,7 +24,7 @@ write_disp_control_file <- function(start_day,
       start_day_GMT, " ", start_hour, "\n",
       "1\n",
       lat, " ", lon, " ", height, "\n",
-      ifelse(direction == "backward", "-", ""), duration, "\n",
+      ifelse(direction == "backward", "-", ""), abs(duration), "\n",
       vert_motion, "\n",
       model_height, "\n",
       length(met_files), "\n",
@@ -34,6 +34,9 @@ write_disp_control_file <- function(start_day,
   i <- 1
   
   release_duration <- as.numeric(species$release_end - species$release_start)
+  release_start <- if(direction == "backward"){species$release_end}else{species$release_start}
+  release_end <- if(direction == "backward"){species$release_start}else{species$release_end}
+  
   
   emission_block <- 
     paste0(
@@ -41,14 +44,17 @@ write_disp_control_file <- function(start_day,
       substr(species$name, 1, 4), "\n",
       species$rate, "\n",
       release_duration, "\n",
-      species$release_start %>% substr(3, 10) %>% tidy_gsub("-", " "), " ",
-      formatC(lubridate::hour(species$release_start), width = 2, flag = "0"), " ", "00", "\n"
+      release_start %>% substr(3, 10) %>% tidy_gsub("-", " "), " ",
+      formatC(lubridate::hour(release_start), width = 2, flag = "0"), " ", "00", "\n"
     )
   
-  end_year_GMT <- to_short_year(species$release_end)
-  end_month_GMT <- to_short_month(species$release_end)
-  end_day_GMT <- to_short_day(species$release_end)
+  # end_year_GMT <- to_short_year(species$release_end)
+  # end_month_GMT <- to_short_month(species$release_end)
+  # end_day_GMT <- to_short_day(species$release_end)
 
+  sampling_duration_days <- floor(duration/24)
+  sampling_duration_hours <- duration %% 24
+  
   grid_block <-
     paste0(
       "1", "\n",
@@ -61,8 +67,12 @@ write_disp_control_file <- function(start_day,
       "0.0", "\n",
       start_year_GMT, " ", start_month_GMT, " ",
       start_day_GMT, " ", start_hour, " 00", "\n",
-      end_year_GMT, " ", end_month_GMT, " ",
-      end_day_GMT, " ", "23 00", " \n",
+      
+      # For sanmpling stop time: we use relative time
+      "00", " ", "00", " ",
+      sampling_duration_days, " ",
+      sampling_duration_hours, " ",
+      "00", " \n",
       "00 01 00", "\n"
     )
 
