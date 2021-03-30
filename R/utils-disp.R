@@ -33,7 +33,7 @@ write_disp_control_file <- function(start_day,
   
   i <- 1
   
-  release_duration <- as.numeric(species$release_end - species$release_start)
+  release_duration <- as.numeric(species$release_end - species$release_start, units="hours")
   release_start <- if(direction == "backward"){species$release_end}else{species$release_start}
   release_end <- if(direction == "backward"){species$release_start}else{species$release_end}
   
